@@ -17,13 +17,13 @@ imagePullPolicy: "IfNotPresent"
 
 ## Configure resource requests and limits
 ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
-resources: {}
-  # limits:
-  #   cpu: 200m
-  #   memory: 1536Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 1024Mi
+resources:
+  limits:
+    cpu: 1200m
+    memory: 3536Mi
+  requests:
+    cpu: 2100m
+    memory: 2024Mi
 kafkaHeapOptions: "-Xmx1G -Xms1G"
 
 ## Optional Container Security context
