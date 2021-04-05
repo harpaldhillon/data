@@ -14,7 +14,7 @@
 image:
   registry: docker.io
   repository: bitnami/wordpress
-  tag: 5.4.1-debian-10-r15
+  tag: 5.3.2-debian-10-r32
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
   ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
@@ -103,13 +103,7 @@ allowEmptyPassword: true
 ## Set Apache allowOverride to None
 ## ref: https://github.com/bitnami/bitnami-docker-wordpress#environment-variables
 ##
-allowOverrideNone: true
-
-## Persist the custom changes of the htaccess. It depends on the value of
-## `.Values.allowOverrideNone`, when `yes` it will persist `/opt/bitnami/wordpress/wordpress-htaccess.conf`
-## if `no` it will persist `/opt/bitnami/wordpress/.htaccess`
-##
-htaccessPersistenceEnabled: false
+allowOverrideNone: false
 
 # ConfigMap with custom wordpress-htaccess.conf file (requires allowOverrideNone to true)
 customHTAccessCM:
@@ -129,7 +123,7 @@ customHTAccessCM:
 # smtpUsername:
 # smtpProtocol:
 
-replicaCount: 3
+replicaCount: 1
 
 ## Additional container environment variables
 ## Example: Configure SSL for database
@@ -162,10 +156,12 @@ extraVolumes: []
 ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
 ##
 resources:
-  limits: {}
+  limits:
+    memory: 2512Mi
+    cpu: 2300m
   requests:
-    memory: 512Mi
-    cpu: 300m
+    memory: 1512Mi
+    cpu: 1300m
 
 ## Affinity for pod assignment
 ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
@@ -260,7 +256,7 @@ service:
   ## Enable client source IP preservation
   ## ref http://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
   ##
-  externalTrafficPolicy: Local
+  externalTrafficPolicy: Cluster
   annotations: {}
   ## Limits which cidr blocks can connect to service's load balancer
   ## Only valid if service.type: LoadBalancer
@@ -338,18 +334,13 @@ persistence:
   ## If you want to reuse an existing claim, you can pass the name of the PVC using
   ## the existingClaim variable
   # existingClaim: your-claim
-  ##
-  ## To use the /admin portal and to ensure you can scale wordpress you need to provide a
-  ## ReadWriteMany PVC, if you dont have a provisioner for this type of storage
-  ## We recommend that you install the nfs provisioner and map it to a RWO volume
-  ## helm install nfs-server stable/nfs-server-provisioner --set persistence.enabled=true,persistence.size=10Gi
-  accessMode: ReadWriteMany
+  accessMode: ReadWriteOnce
   size: 10Gi
 
 ##
 ## MariaDB chart configuration
 ##
-## https://github.com/bitnami/charts/blob/master/bitnami/mariadb/values.yaml
+## https://github.com/helm/charts/blob/master/stable/mariadb/values.yaml
 ##
 mariadb:
   ## Whether to deploy a mariadb server to satisfy the applications database requirements. To use an external database set this to false and configure the externalDatabase parameters
@@ -421,11 +412,11 @@ externalDatabase:
 ## Prometheus Exporter / Metrics
 ##
 metrics:
-  enabled: true
+  enabled: false
   image:
     registry: docker.io
     repository: bitnami/apache-exporter
-    tag: 0.8.0-debian-10-r47
+    tag: 0.7.0-debian-10-r32
     pullPolicy: IfNotPresent
     ## Optionally specify an array of imagePullSecrets.
     ## Secrets must be manually created in the namespace.
@@ -476,14 +467,3 @@ metrics:
 ##         containerPort: 1234
 ##
 sidecars: {}
-
-## Add init containers to the pod.
-## ref: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
-## Example:
-## initContainers:
-##  - name: your-image-name
-##    image: your-image
-##    imagePullPolicy: Always
-##    command: ['sh', '-c', 'copy themes and plugins from git and push to /bitnami/wordpress/wp-conntent. Should work with extraVolumeMounts and extraVolumes']
-##
-initContainers: {}
