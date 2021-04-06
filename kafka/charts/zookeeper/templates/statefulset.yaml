@@ -206,7 +206,6 @@ spec:
         - name: data
           emptyDir: {}
         {{- end }}
-  {{- if .Values.persistence.enabled }}
   volumeClaimTemplates:
     - metadata:
         name: data
@@ -223,4 +222,3 @@ spec:
         storageClassName: "{{ .Values.persistence.storageClass }}"
         {{- end }}
       {{- end }}
-  {{- end }}
